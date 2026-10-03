@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Planning de la Brume</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1720;--bg2:#17222e;--card:#1c2a38;--line:#2d4256;--mist:#dce8ee;--mute:#8fa6b6;--blue:#9cc4da;--sea:#7fd6bd;--warn:#e8a07a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--mist);font-family:"Zen Kaku Gothic New",system-ui,sans-serif;line-height:1.5;min-height:100vh}
+h1,h2,h3{font-family:"Shippori Mincho",Georgia,serif;font-weight:700;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--sea);outline-offset:2px}
+.hidden{display:none!important}
+
+.logo{width:1.5em;height:.95em;color:var(--sea);vertical-align:-.08em;margin-right:.35em;filter:drop-shadow(0 0 6px var(--sea))}
+#home .logo{display:block;width:84px;height:54px;margin:0 auto 14px}
+.kj.kt{margin-left:.5em;font-size:1.05em}
+.kj{font-family:"Shippori Mincho",serif;color:var(--sea);margin-left:.4em;text-shadow:0 0 8px var(--sea)}
+.when .kj{margin-left:.3em}
+@media(hover:hover) and (pointer:fine){body,body *:not(input):not(textarea){cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='24' viewBox='0 0 34 24'%3E%3Cpath d='M8 20C3 20 1 14 6 12C5 6 12 3 16 8C18 2 28 3 28 10C32 10 34 16 29 19C28 20 26 20 24 20Z' fill='%23eef5f8' stroke='%237fd6bd' stroke-width='1.5'/%3E%3C/svg%3E") 17 12, auto !important}}
+.trail{position:fixed;pointer-events:none;z-index:60;border-radius:50%;background:radial-gradient(circle,rgba(226,240,246,.8),rgba(127,214,189,.28) 55%,transparent 72%);filter:blur(4px);animation:trail .95s ease-out forwards}
+@keyframes trail{from{opacity:.8;transform:translate(-50%,-50%) scale(.6)}to{opacity:0;transform:translate(calc(-50% + var(--tx)),calc(-50% - 20px)) scale(1.9)}}
+/* Accueil */
+#home{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:radial-gradient(ellipse at 50% 120%,#243a4b,var(--bg) 65%);overflow:hidden;z-index:5}
+.drift{position:absolute;width:140%;height:50%;left:-20%;background:radial-gradient(ellipse,rgba(220,232,238,.13),transparent 65%);filter:blur(30px);animation:drift 26s ease-in-out infinite alternate}
+.drift.a{top:8%}.drift.b{top:55%;animation-duration:34s;animation-direction:alternate-reverse}
+@keyframes drift{from{transform:translateX(-8%)}to{transform:translateX(8%)}}
+#home h1{font-size:clamp(2rem,6vw,3.6rem);letter-spacing:.08em;position:relative}
+#home p{color:var(--mute);margin:.6rem 0 0;position:relative}
+#cloud{position:relative;width:min(300px,70vw);height:200px;margin-top:2.5rem;background:none;border:0;padding:0}
+#cloud i{position:absolute;border-radius:50%;background:radial-gradient(circle,#eef5f8 0%,rgba(220,232,238,.55) 55%,transparent 72%);filter:blur(6px);animation:breathe 7s ease-in-out infinite}
+#cloud i:nth-child(1){width:150px;height:150px;left:20px;top:30px}
+#cloud i:nth-child(2){width:180px;height:180px;left:80px;top:0;animation-delay:-2s}
+#cloud i:nth-child(3){width:130px;height:130px;left:150px;top:50px;animation-delay:-4s}
+#cloud:hover i,#cloud:focus-visible i{filter:blur(3px)}
+@keyframes breathe{50%{transform:scale(1.08) translateY(-6px)}}
+#veil{position:fixed;inset:0;z-index:20;pointer-events:none;overflow:hidden}
+#veil i{position:absolute;left:50%;top:60%;width:60vmax;height:60vmax;margin:-30vmax;border-radius:50%;background:radial-gradient(circle,#e6eff3 0%,rgba(220,232,238,.8) 45%,transparent 70%);opacity:0;transform:scale(.1)}
+#veil.go i{animation:veil 2.2s ease-in-out forwards}
+#veil.go i:nth-child(2){animation-delay:.2s;left:30%;top:40%}
+#veil.go i:nth-child(3){animation-delay:.35s;left:72%;top:35%}
+@keyframes veil{0%{opacity:0;transform:scale(.1)}45%{opacity:1;transform:scale(1.4)}100%{opacity:0;transform:scale(2.2)}}
+
+/* Brume flottante en fond, sur tout le site */
+#fog{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+#fog span{position:absolute;bottom:-25%;border-radius:50%;background:radial-gradient(circle,rgba(159,223,214,.5),rgba(124,196,218,.28) 45%,transparent 72%);filter:blur(18px) drop-shadow(0 0 22px rgba(127,214,189,.55));opacity:0;animation:float-up linear infinite}
+#fog span.n2{background:radial-gradient(circle,rgba(156,196,218,.5),rgba(142,170,220,.25) 45%,transparent 72%);filter:blur(22px) drop-shadow(0 0 26px rgba(156,196,218,.5))}
+#fog span.n3{background:radial-gradient(circle,rgba(232,160,122,.35),rgba(232,160,122,.18) 45%,transparent 72%);filter:blur(20px) drop-shadow(0 0 20px rgba(232,160,122,.4))}
+@keyframes float-up{
+  0%{opacity:0;transform:translate(0,0) scale(.8)}
+  10%{opacity:.55}
+  90%{opacity:.4}
+  100%{opacity:0;transform:translate(var(--dx,60px),-130vh) scale(1.3)}
+}
+#home,#app{position:relative;z-index:2}
+#app header.top,#app .bar,#app .presence,#app #board{position:relative;z-index:2}
+@media(prefers-reduced-motion:reduce){#fog span{animation:none;opacity:.25}}
+
+/* Planning */
+#app{max-width:1500px;margin:0 auto;padding:24px 20px 60px}
+header.top{display:flex;flex-wrap:wrap;gap:16px;align-items:end;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:18px}
+header.top h1{font-size:clamp(1.6rem,4vw,2.4rem);letter-spacing:.06em}
+header.top p{margin:.2rem 0 0;color:var(--mute)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.seg button{background:none;border:0;padding:7px 16px;color:var(--mute)}
+.seg button[aria-pressed=true]{background:var(--blue);color:#0f1720;font-weight:700}
+.btn{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:7px 14px}
+.btn:hover{border-color:var(--blue)}
+.btn.main{background:var(--sea);color:#0b1a16;border-color:var(--sea);font-weight:700}
+.btn.del{color:var(--warn)}
+select.btn{padding-right:8px}
+.spacer{flex:1}
+.presence{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:20px}
+.presence h2{font-size:1.05rem;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:2px 11px;font-size:.88rem}
+.cols{display:grid;grid-template-columns:repeat(7,minmax(190px,1fr));gap:12px;overflow-x:auto;padding-bottom:10px}
+.col{background:var(--bg2);border-radius:12px;border:1px solid var(--line);min-height:240px;display:flex;flex-direction:column}
+.col.today{border-color:var(--sea)}
+.col.over{background:#1e3342}
+.col>h3{padding:12px 14px;font-size:1.05rem;border-bottom:1px solid var(--line)}
+.col>h3 small{display:block;font-family:"Zen Kaku Gothic New";font-weight:400;color:var(--mute);font-size:.82rem}
+.col .items{padding:10px;display:flex;flex-direction:column;gap:10px;flex:1}
+.empty{color:var(--mute);font-size:.88rem;padding:6px 4px}
+.m{background:var(--card);border-left:3px solid var(--blue);border-radius:6px;padding:10px 12px}
+.m[data-s=encours]{border-color:var(--sea)}.m[data-s=urgente]{border-color:var(--warn)}.m[data-s=terminee]{opacity:.6}
+.m{--hc:var(--blue);box-shadow:0 0 10px -3px var(--hc)}
+.m[data-s=encours]{--hc:var(--sea)}.m[data-s=urgente]{--hc:var(--warn)}
+.m:not(.open){animation:hint 3.4s ease-in-out infinite}
+.m:hover,.m:focus-visible{box-shadow:0 0 18px -1px var(--hc);animation:none}
+@keyframes hint{50%{box-shadow:0 0 16px -1px var(--hc)}}
+.nav{display:inline-flex;gap:6px;align-items:center}
+.nav .btn{padding:6px 12px}
+.navrow{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:14px;padding:22px 0 6px}
+.cloudbtn{--cl:#263f52;position:relative;isolation:isolate;border:0;background:none;height:62px;min-width:190px;padding:0 36px;color:var(--mist);font-weight:500;filter:drop-shadow(0 0 9px rgba(127,214,189,.5));animation:lev 5s ease-in-out infinite}
+.cloudbtn:nth-child(2){animation-delay:-1.7s}.cloudbtn:nth-child(3){animation-delay:-3.3s}
+.cloudbtn.mid{--cl:#2f5a64;height:74px;min-width:230px;font-weight:700}
+.cshape{position:absolute;inset:0;width:100%;height:100%;z-index:-1;overflow:visible;pointer-events:none}
+.cshape path{fill:var(--cl);stroke:#cfe3ec;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.cshape path.cu{fill:none;opacity:.75}
+@keyframes lev{50%{translate:0 -7px}}
+.cloudbtn:hover:not(:disabled){transform:scale(1.04);filter:drop-shadow(0 0 14px rgba(127,214,189,.8))}
+.cloudbtn:disabled{opacity:.55;cursor:default}
+.puff{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(238,246,249,.95),rgba(220,232,238,.4) 55%,transparent 72%);filter:blur(5px);animation:puff 1s ease-out forwards;z-index:3}
+@keyframes puff{from{opacity:.95;transform:translate(0,0) scale(.5)}to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(2.8)}}
+.sup{text-shadow:0 0 8px currentColor}
+.sndbox{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;align-items:center;gap:10px;background:rgba(38,63,82,.92);border:1px solid var(--line);border-radius:999px;padding:6px 14px;box-shadow:0 0 14px -3px var(--sea)}
+.sndbtn{background:none;border:0;color:var(--mist);padding:2px 4px}
+.sndbtn[aria-pressed=false]{color:var(--mute)}
+#vol{width:90px;padding:0;background:none;border:0;accent-color:var(--sea)}
+.detail{display:none;margin-top:6px}
+.m.open .detail{display:block}
+.m{cursor:pointer}
+.m h4::after{content:"›";display:inline-block;margin-left:.45em;color:var(--mute);transition:transform .2s}
+.m.open h4::after{transform:rotate(90deg)}
+.m .t{font-weight:700;color:var(--blue)}
+.m h4{margin:2px 0;font-size:1rem}
+.m p{margin:2px 0 6px;color:var(--mute);font-size:.88rem}
+.m .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.8rem;color:var(--mute)}
+.badge{border:1px solid currentColor;border-radius:999px;padding:0 8px;font-size:.78rem;text-shadow:0 0 6px currentColor}
+.badge.encours{color:var(--sea);box-shadow:0 0 10px -2px var(--sea)}
+.badge.urgente{color:var(--warn);box-shadow:0 0 10px -2px var(--warn)}
+.badge.avenir{color:var(--blue);box-shadow:0 0 10px -2px var(--blue)}
+.badge.terminee{color:var(--mute)}
+
+.acts{display:flex;gap:6px;margin-top:8px}
+.acts .btn{padding:2px 10px;font-size:.82rem}
+.admin .m{cursor:grab}
+.list{display:flex;flex-direction:column;gap:10px;max-width:860px}
+.list .m{display:grid;grid-template-columns:130px 1fr;gap:14px}
+.list .when{color:var(--mute);font-size:.9rem}
+.list .when b{display:block;color:var(--blue);font-size:1.15rem;font-family:"Shippori Mincho",serif}
+dialog{background:var(--bg2);color:var(--mist);border:1px solid var(--line);border-radius:14px;padding:22px;width:min(460px,92vw)}
+dialog::backdrop{background:rgba(5,10,15,.7)}
+dialog h2{margin-bottom:12px}
+label{display:block;margin:10px 0 3px;font-size:.9rem;color:var(--mute)}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dlg-acts{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.err{color:var(--warn);min-height:1.3em;margin:6px 0 0;font-size:.9rem}
+@media(max-width:700px){.list .m{grid-template-columns:1fr}.cols{grid-template-columns:repeat(7,230px)}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
+</style>
+</head>
+<body>
+
+<div id="fog" aria-hidden="true"></div>
+<div class="sndbox"><button id="snd" class="sndbtn" aria-pressed="true">♪ Son activé</button><input type="range" id="vol" min="0" max="100" value="50" aria-label="Volume"></div>
+
+<section id="home">
+  <div class="drift a"></div><div class="drift b"></div>
+  <h1><svg class="logo" viewBox="0 0 64 40" aria-hidden="true"><path d="M16 34a10 10 0 0 1-1-19.9A13 13 0 0 1 40 11a11 11 0 0 1 9 17.5A8 8 0 0 1 48 34z" fill="rgba(156,196,218,.12)" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 26c4-3 8-3 12 0s8 3 12 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".7"/></svg>Planning de la Brume<span class="kj kt" aria-label="Brume">霞</span></h1>
+  <p>Souffle de la Brume · les missions de la semaine</p>
+  <button id="cloud" aria-label="Entrer dans la brume : ouvrir le planning"><i></i><i></i><i></i></button>
+  <p>Touchez le nuage pour entrer dans la brume</p>
+</section>
+<div id="veil" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<main id="app" class="hidden">
+  <header class="top">
+    <div><h1><svg class="logo" viewBox="0 0 64 40" aria-hidden="true"><path d="M16 34a10 10 0 0 1-1-19.9A13 13 0 0 1 40 11a11 11 0 0 1 9 17.5A8 8 0 0 1 48 34z" fill="rgba(156,196,218,.12)" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 26c4-3 8-3 12 0s8 3 12 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".7"/></svg>Planning de la Brume<span class="kj kt" aria-label="Brume">霞</span></h1><p id="range"></p></div>
+    <div><button class="btn" id="lock"></button></div>
+  </header>
+  <div class="navrow" role="group" aria-label="Changer de semaine">
+    <button class="cloudbtn" id="prevW" aria-label="Semaine précédente">‹ Précédente</button>
+    <button class="cloudbtn mid" id="thisW">Cette semaine</button>
+    <button class="cloudbtn" id="nextW" aria-label="Semaine suivante">Suivante ›</button>
+  </div>
+  <div class="bar">
+    <div class="seg" role="group" aria-label="Affichage">
+      <button id="vCols" aria-pressed="true">Colonnes</button>
+      <button id="vList" aria-pressed="false">Liste</button>
+    </div>
+    <label for="sort" style="margin:0">Trier par</label>
+    <select id="sort" class="btn"><option value="day">Jour</option><option value="time">Horaire</option></select>
+    <span class="spacer"></span>
+    <button class="btn hidden" id="mp3Btn">Ajouter une mélodie (mp3)</button>
+    <button class="btn hidden" id="mp3Reset">Revenir à la mélodie par défaut</button>
+    <input type="file" id="mp3" accept=".mp3,audio/mpeg" class="hidden">
+    <span id="sndMsg" class="empty" role="status"></span>
+    <button class="btn main hidden" id="add">Ajouter une mission</button>
+  </div>
+  <div id="board"></div>
+</main>
+
+<dialog id="dLogin">
+  <form method="dialog" id="fLogin">
+    <h2>Aller dans le brouillard</h2>
+    <label for="pw">Mot de passe administrateur</label>
+    <input id="pw" type="password" autocomplete="off">
+    <p class="err" id="pwErr"></p>
+    <div class="dlg-acts"><button type="button" class="btn" data-close>Annuler</button><button class="btn main" value="ok">Entrer</button></div>
+  </form>
+</dialog>
+
+<dialog id="dMission">
+  <form id="fMission">
+    <h2 id="mTitle"></h2>
+    <label for="fTitle">Titre</label><input id="fTitle" required>
+    <div class="row">
+      <div><label for="fDay">Jour</label><select id="fDay"></select></div>
+      <div><label for="fTime">Horaire</label><input id="fTime" type="time" required></div>
+    </div>
+    <label for="fDesc">Description</label><textarea id="fDesc" rows="3"></textarea>
+    <label for="fGroup">Personne ou groupe concerné</label><input id="fGroup">
+    <label for="fSup">Nom du superviseur</label>
+    <div class="row" style="grid-template-columns:1fr 64px"><input id="fSup"><input id="fSupColor" type="color" value="#7fd6bd" aria-label="Couleur du nom du superviseur" style="padding:2px;height:38px"></div>
+    <label style="display:flex;gap:8px;align-items:center;color:var(--mist)"><input type="checkbox" id="fRec" style="width:auto"> Répéter chaque semaine (même jour, même heure)</label>
+    <label for="fStatus">Statut</label>
+    <select id="fStatus"><option value="avenir">À venir</option><option value="encours">En cours</option><option value="urgente">Urgente</option><option value="terminee">Terminée</option></select>
+    <div class="dlg-acts"><button type="button" class="btn" data-close>Annuler</button><button class="btn main">Enregistrer</button></div>
+  </form>
+</dialog>
+
+<dialog id="dDel">
+  <h2>Supprimer la mission ?</h2>
+  <p id="delName" style="color:var(--mute)"></p>
+  <div class="dlg-acts"><button type="button" class="btn" data-close>Annuler</button><button type="button" class="btn del" id="delOk">Supprimer</button></div>
+</dialog>
+
+<script>
+// Nuages de brume flottants en fond (effet néon brumeux)
+(function(){
+  const host=document.getElementById("fog");
+  const kinds=["","n2","n3"];
+  const N=14;
+  for(let i=0;i<N;i++){
+    const s=document.createElement("span");
+    const size=120+Math.random()*220;
+    s.className=kinds[i%kinds.length];
+    s.style.width=s.style.height=size+"px";
+    s.style.left=(Math.random()*100)+"%";
+    s.style.setProperty("--dx",(Math.random()*160-80)+"px");
+    const dur=22+Math.random()*26;
+    s.style.animationDuration=dur+"s";
+    s.style.animationDelay=(-Math.random()*dur)+"s";
+    host.appendChild(s);
+  }
+})();
+
+(function(){
+  if(!matchMedia("(hover:hover) and (pointer:fine)").matches||matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+  let last=0;
+  addEventListener("mousemove",e=>{
+    const t=performance.now();if(t-last<40)return;last=t;
+    const s=document.createElement("div"),z=16+Math.random()*16;
+    s.className="trail";s.style.cssText=`left:${e.clientX}px;top:${e.clientY}px;width:${z}px;height:${z}px;--tx:${Math.random()*30-15}px`;
+    document.body.appendChild(s);setTimeout(()=>s.remove(),1000);
+  });
+})();
+const ADMIN_PASSWORD = "brume"; // à modifier ici
+const KANJI=["月","火","水","木","金","土","日"];
+const DAYS=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
+const ST={avenir:"À venir",encours:"En cours",urgente:"Urgente",terminee:"Terminée"};
+const KEY="planning-brume-v1";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+const seed=[
+ {id:1,day:0,time:"06:30",title:"Entraînement du matin",desc:"Respiration et enchaînements de forme.",group:"Pilier de la Brume",sup:"Muichiro",supColor:"#7fd6bd",status:"avenir"},
+ {id:2,day:1,time:"21:00",title:"Patrouille du village",desc:"Surveillance des abords de la forêt.",group:"Escouade Hinoe",sup:"Shinobu",supColor:"#c79bff",status:"avenir"},
+ {id:3,day:2,time:"14:00",title:"Réunion du Corps",desc:"Rapport des dernières missions.",group:"Tous les pourfendeurs",sup:"Giyu",supColor:"#6fb4ff",status:"avenir"},
+ {id:4,day:3,time:"23:30",title:"Traque dans la montagne",desc:"Un démon signalé près du col.",group:"Muichiro",sup:"Muichiro",supColor:"#7fd6bd",status:"urgente"},
+ {id:5,day:4,time:"10:00",title:"Soins au manoir",desc:"Convalescence et inventaire des remèdes.",group:"Manoir Papillon",sup:"Shinobu",supColor:"#c79bff",status:"encours"},
+ {id:6,day:6,time:"16:00",title:"Repos et thé",desc:"Journée calme.",group:"Libre",sup:"Kanao",supColor:"#ff9ec7",status:"avenir"}
+];
+const openSet=new Set();
+let missions,view="cols",sort="day",admin=false,editId=null;
+try{missions=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!Array.isArray(missions))missions=seed;
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(missions))}catch(e){}};
+
+let wOff=0;
+const today=new Date(),dow=(today.getDay()+6)%7;
+const mondayOf=o=>new Date(today.getFullYear(),today.getMonth(),today.getDate()-dow+o*7);
+const dateOf=i=>{const m=mondayOf(wOff);return new Date(m.getFullYear(),m.getMonth(),m.getDate()+i)};
+const wkey=o=>{const d=mondayOf(o);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const fmt=(d,o)=>d.toLocaleDateString("fr-FR",o);
+missions.forEach(m=>{if(!m.week)m.week=wkey(0)});
+const wm=()=>missions.filter(m=>m.rec?wkey(wOff)>=m.week:m.week===wkey(wOff));
+function head(){
+  $("#range").textContent=(wOff===0?"Cette semaine · ":wOff===-1?"Semaine dernière · ":wOff===1?"Semaine prochaine · ":"")+"du "+fmt(dateOf(0),{day:"numeric",month:"long"})+" au "+fmt(dateOf(6),{day:"numeric",month:"long",year:"numeric"});
+  $("#fDay").innerHTML=DAYS.map((d,i)=>`<option value="${i}">${d} ${KANJI[i]} ${fmt(dateOf(i),{day:"numeric",month:"numeric"})}</option>`).join("");
+  $("#thisW").disabled=wOff===0;
+}
+const people=m=>(m.people||"").split(",").map(s=>s.trim()).filter(Boolean);
+const sorted=()=>[...wm()].sort((a,b)=>sort==="day"?a.day-b.day||a.time.localeCompare(b.time):a.time.localeCompare(b.time)||a.day-b.day);
+
+function card(m,showDay){
+  const p=people(m),o=openSet.has(m.id);
+  return `<article class="m${o?" open":""}" data-s="${m.status}" data-id="${m.id}" tabindex="0" aria-expanded="${o}" ${admin&&view==="cols"?'draggable="true"':""}>
+   <div class="t">${showDay?"":esc(m.time)}</div>
+   <h4>${esc(m.title)}</h4>
+   <div class="detail">${m.desc?`<p>${esc(m.desc)}</p>`:""}
+   <div class="meta"><span class="badge ${m.status}">${ST[m.status]}</span>${m.group?`<span>${esc(m.group)}</span>`:""}${m.rec?"<span>↻ Chaque semaine</span>":""}</div>
+   ${m.sup?`<div class="meta" style="margin-top:4px">Superviseur : <b class="sup" style="color:${/^#[0-9a-f]{6}$/i.test(m.supColor)?m.supColor:"#7fd6bd"}">${esc(m.sup)}</b></div>`:""}
+   ${admin?`<div class="acts"><button class="btn" data-edit="${m.id}">Modifier</button><button class="btn del" data-del="${m.id}">Supprimer</button></div>`:""}</div>
+  </article>`;
+}
+function render(){
+  head();sndUI();  document.body.classList.toggle("admin",admin);
+  $("#add").classList.toggle("hidden",!admin);
+  $("#lock").textContent=admin?"Verrouiller la gestion":"Gestion";
+  $("#vCols").setAttribute("aria-pressed",view==="cols");
+  $("#vList").setAttribute("aria-pressed",view==="list");
+  if(view==="cols"){
+    $("#board").innerHTML=`<div class="cols">`+DAYS.map((d,i)=>{
+      const ms=wm().filter(m=>m.day===i).sort((a,b)=>a.time.localeCompare(b.time)).map(m=>`<div>${""}</div>`&&card(m).replace('<div class="t"></div>','')).join("");
+      return `<section class="col ${i===dow&&wOff===0?"today":""}" data-day="${i}"><h3>${d}<span class="kj">${KANJI[i]}</span><small>${fmt(dateOf(i),{day:"numeric",month:"long"})}${i===dow&&wOff===0?" · aujourd'hui":""}</small></h3><div class="items">${ms||'<div class="empty">Aucune mission</div>'}</div></section>`}).join("")+`</div>`;
+  }else{
+    const ms=sorted();
+    $("#board").innerHTML=`<div class="list">`+(ms.map(m=>`<div class="m${openSet.has(m.id)?" open":""}" data-s="${m.status}" data-id="${m.id}" tabindex="0" aria-expanded="${openSet.has(m.id)}"><div class="when"><b>${esc(m.time)}</b>${DAYS[m.day]}<span class="kj">${KANJI[m.day]}</span> ${fmt(dateOf(m.day),{day:"numeric",month:"numeric"})}</div><div>${card(m,true).replace(/^<article[^>]*>/,"").replace(/<\/article>$/,"")}</div></div>`).join("")||'<div class="empty">Aucune mission cette semaine.</div>')+`</div>`;
+  }
+}
+
+// Accueil -> planning
+$("#cloud").onclick=()=>{
+  startSound();
+  $("#veil").classList.add("go");
+  setTimeout(()=>{$("#home").classList.add("hidden");$("#app").classList.remove("hidden")},900);
+  setTimeout(()=>$("#veil").classList.remove("go"),2300);
+};
+const CLOUD='<svg class="cshape" viewBox="0 0 200 80" preserveAspectRatio="none" aria-hidden="true"><path d="M30 66C12 66 4 48 20 42C16 24 40 14 54 28C62 8 98 6 106 26C122 12 152 18 152 36C172 30 192 46 176 60C172 66 164 66 156 66Z"/><path class="cu" d="M54 28c-9-3-13 8-4 11M106 26c-9-2-12 8-3 11M152 36c-8-3-12 8-4 10M30 66c-8 6-20 3-17-5M156 66c8 6 20 3 17-5"/></svg>';
+document.querySelectorAll(".cloudbtn").forEach(b=>b.insertAdjacentHTML("afterbegin",CLOUD));
+document.querySelectorAll(".cloudbtn").forEach(b=>b.addEventListener("click",()=>{
+  for(let k=0;k<6;k++){
+    const s=document.createElement("span");s.className="puff";
+    s.style.setProperty("--dx",(Math.random()*180-90)+"px");
+    s.style.setProperty("--dy",(Math.random()*70-45)+"px");
+    s.style.animationDelay=(k*.05)+"s";
+    b.appendChild(s);setTimeout(()=>s.remove(),1200);
+  }
+}));
+$("#prevW").onclick=()=>{wOff--;render()};
+$("#nextW").onclick=()=>{wOff++;render()};
+$("#thisW").onclick=()=>{wOff=0;render()};
+$("#vCols").onclick=()=>{view="cols";render()};
+$("#vList").onclick=()=>{view="list";render()};
+$("#sort").onchange=e=>{sort=e.target.value;if(view==="cols")view="list";render()};
+
+// Admin
+$("#lock").onclick=()=>{
+  if(admin){admin=false;render();return}
+  $("#pw").value="";$("#pwErr").textContent="";$("#dLogin").showModal();$("#pw").focus();
+};
+$("#fLogin").onsubmit=e=>{
+  if($("#pw").value===ADMIN_PASSWORD){admin=true;render();return}
+  e.preventDefault();$("#pwErr").textContent="Mot de passe incorrect. Réessayez.";
+};
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>b.closest("dialog").close());
+
+function openMission(id,day){
+  editId=id;const m=missions.find(x=>x.id===id)||{day:day??(wOff===0?dow:0),time:"09:00",title:"",desc:"",group:"",people:"",status:"avenir"};
+  $("#mTitle").textContent=id?"Modifier la mission":"Ajouter une mission";
+  $("#fTitle").value=m.title;$("#fDay").value=m.day;$("#fTime").value=m.time;$("#fDesc").value=m.desc;$("#fGroup").value=m.group;$("#fRec").checked=!!m.rec;$("#fSup").value=m.sup||"";$("#fSupColor").value=/^#[0-9a-f]{6}$/i.test(m.supColor)?m.supColor:"#7fd6bd";$("#fStatus").value=m.status;
+  $("#dMission").showModal();
+}
+$("#add").onclick=()=>openMission(null);
+$("#fMission").onsubmit=e=>{
+  e.preventDefault();
+  const d={day:+$("#fDay").value,time:$("#fTime").value,title:$("#fTitle").value.trim(),desc:$("#fDesc").value.trim(),group:$("#fGroup").value.trim(),rec:$("#fRec").checked,sup:$("#fSup").value.trim(),supColor:$("#fSupColor").value,status:$("#fStatus").value};
+  if(editId){Object.assign(missions.find(x=>x.id===editId),d)}else{missions.push({id:Date.now(),week:wkey(wOff),...d})}
+  save();$("#dMission").close();render();
+};
+function toggleCard(e){
+  if(e.target.closest("button"))return false;
+  const m=e.target.closest(".m");if(!m)return false;
+  const id=+m.dataset.id;openSet.has(id)?openSet.delete(id):openSet.add(id);
+  m.classList.toggle("open");m.setAttribute("aria-expanded",openSet.has(id));return true;
+}
+$("#board").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("m")){e.preventDefault();toggleCard(e)}});
+$("#board").addEventListener("click",e=>{
+  if(toggleCard(e))return;
+  const ed=e.target.closest("[data-edit]"),de=e.target.closest("[data-del]");
+  if(ed)openMission(+ed.dataset.edit);
+  if(de){delId=+de.dataset.del;{const dm=missions.find(m=>m.id===delId);$("#delName").textContent=(dm?.title||"")+(dm?.rec?" — cette mission se répète chaque semaine : toute la série sera supprimée.":"")}$("#dDel").showModal()}
+});
+// Déplacer par glisser-déposer (mode administrateur, vue colonnes)
+let delId=null;
+$("#delOk").onclick=()=>{missions=missions.filter(m=>m.id!==delId);save();$("#dDel").close();render()};
+let dragId=null;
+$("#board").addEventListener("dragstart",e=>{const c=e.target.closest(".m");if(c)dragId=+c.dataset.id});
+$("#board").addEventListener("dragover",e=>{const c=e.target.closest(".col");if(c&&dragId){e.preventDefault();c.classList.add("over")}});
+$("#board").addEventListener("dragleave",e=>{const c=e.target.closest(".col");if(c)c.classList.remove("over")});
+$("#board").addEventListener("drop",e=>{
+  const c=e.target.closest(".col");if(!c||!dragId)return;e.preventDefault();
+  missions.find(m=>m.id===dragId).day=+c.dataset.day;dragId=null;save();render();
+});
+// Son : ambiance générée (Web Audio) ou mp3 ajouté par l'administrateur
+let ac,master,bus,audioEl=null,customUrl=null,muted=false,vol=.5,chimeT=null;
+try{muted=localStorage.getItem("brume-muted")==="1";customUrl=localStorage.getItem("brume-mp3");const v=localStorage.getItem("brume-vol");if(v!==null)vol=Math.min(1,Math.max(0,+v/100))}catch(e){}
+function setCustom(u){audioEl=u?Object.assign(new Audio(u),{loop:true,volume:vol}):null}
+setCustom(customUrl);
+function ensureAmbient(){
+  if(ac)return;
+  ac=new(window.AudioContext||window.webkitAudioContext)();
+  master=ac.createGain();master.gain.value=0;master.connect(ac.destination);
+  bus=ac.createGain();bus.connect(master);
+  // écho doux, comme dans une grande salle
+  const dl=ac.createDelay(1),fb=ac.createGain(),wet=ac.createGain();
+  dl.delayTime.value=.42;fb.gain.value=.38;wet.gain.value=.5;
+  bus.connect(dl);dl.connect(fb);fb.connect(dl);dl.connect(wet);wet.connect(master);
+  // nappe apaisante
+  const pl=ac.createBiquadFilter(),pad=ac.createGain();pl.type="lowpass";pl.frequency.value=800;pad.gain.value=.05;pl.connect(pad);pad.connect(bus);
+  [146.83,220,293.66,369.99].forEach((f,i)=>[-4,4].forEach(dt=>{
+    const o=ac.createOscillator(),g=ac.createGain(),l=ac.createOscillator(),lg=ac.createGain();
+    o.frequency.value=f;o.detune.value=dt;g.gain.value=.25;l.frequency.value=.05+i*.017;lg.gain.value=.18;
+    l.connect(lg);lg.connect(g.gain);o.connect(g);g.connect(pl);o.start();l.start();
+  }));
+  // souffle très léger
+  const len=ac.sampleRate*4,buf=ac.createBuffer(1,len,ac.sampleRate),d=buf.getChannelData(0);let b=0;
+  for(let k=0;k<len;k++){b=(b+.02*(Math.random()*2-1))/1.02;d[k]=b*3.5}
+  const src=ac.createBufferSource(),nl=ac.createBiquadFilter(),ng=ac.createGain();
+  src.buffer=buf;src.loop=true;nl.type="lowpass";nl.frequency.value=300;ng.gain.value=.06;
+  src.connect(nl);nl.connect(ng);ng.connect(bus);src.start();
+}
+function chime(){
+  if(!ac||muted||audioEl)return;
+  const notes=[587.33,659.25,739.99,880,987.77],t=ac.currentTime;
+  const o=ac.createOscillator(),g=ac.createGain();o.type="sine";o.frequency.value=notes[Math.floor(Math.random()*notes.length)];
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+.02);g.gain.exponentialRampToValueAtTime(.0005,t+3.2);
+  o.connect(g);g.connect(bus);o.start(t);o.stop(t+3.4);
+}
+function chimeLoop(){clearTimeout(chimeT);chimeT=setTimeout(()=>{chime();chimeLoop()},4000+Math.random()*5000)}
+function applyVol(){
+  if(audioEl)audioEl.volume=vol;
+  if(master&&!muted&&!audioEl)master.gain.setTargetAtTime(vol,ac.currentTime,.1);
+}
+function startSound(){
+  if(muted)return;
+  if(audioEl){audioEl.volume=vol;audioEl.play().catch(()=>{});clearTimeout(chimeT);if(master)master.gain.setTargetAtTime(0,ac.currentTime,.3);return}
+  try{ensureAmbient();ac.resume();master.gain.setTargetAtTime(vol,ac.currentTime,1.5);chimeLoop()}catch(e){}
+}
+function stopSound(){
+  if(audioEl)audioEl.pause();
+  clearTimeout(chimeT);
+  if(master)master.gain.setTargetAtTime(0,ac.currentTime,.3);
+}
+function sndUI(){
+  const b=$("#snd");b.setAttribute("aria-pressed",!muted);b.textContent=muted?"♪ Son coupé":"♪ Son activé";$("#vol").value=Math.round(vol*100);
+  $("#mp3Btn").classList.toggle("hidden",!admin);
+  $("#mp3Reset").classList.toggle("hidden",!(admin&&customUrl));
+}
+$("#snd").onclick=()=>{muted=!muted;try{localStorage.setItem("brume-muted",muted?"1":"0")}catch(e){}muted?stopSound():startSound();sndUI()};
+$("#vol").oninput=e=>{vol=e.target.value/100;try{localStorage.setItem("brume-vol",e.target.value)}catch(_){}applyVol()};
+$("#mp3Btn").onclick=()=>$("#mp3").click();
+$("#mp3").onchange=e=>{
+  const f=e.target.files[0];e.target.value="";if(!f)return;
+  if(!/\.mp3$/i.test(f.name)&&f.type!=="audio/mpeg"){$("#sndMsg").textContent="Choisissez un fichier mp3.";return}
+  const r=new FileReader();
+  r.onload=()=>{
+    stopSound();customUrl=r.result;setCustom(customUrl);
+    let kept=true;try{localStorage.setItem("brume-mp3",customUrl)}catch(err){kept=false}
+    $("#sndMsg").textContent=kept?"Mélodie ajoutée.":"Mélodie ajoutée, mais trop lourde pour être mémorisé : actif jusqu'à la fermeture de la page.";
+    startSound();sndUI();
+  };
+  r.readAsDataURL(f);
+};
+$("#mp3Reset").onclick=()=>{stopSound();customUrl=null;setCustom(null);try{localStorage.removeItem("brume-mp3")}catch(e){}$("#sndMsg").textContent="Mélodie par défaut rétablie.";startSound();sndUI()};
+render();
+</script>
+</body>
+</html>
